@@ -16,7 +16,7 @@ library(tibble)
 
 ## **Part 1:** **Defining Research Question**
 
-Chosen Question:
+Chosen Question: Does investing in renewable engery lead to the a lowering of energy costs?
 
 ## **Part 2: Data Preparation and Cleaning**
 
