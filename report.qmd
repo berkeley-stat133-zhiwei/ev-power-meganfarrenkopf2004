@@ -8,7 +8,10 @@ format: typst
 ## **Part 0: libraries**
 
 ```{r}
-
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(tibble)
 ```
 
 ## **Part 1:** **Defining Research Question**
