@@ -21,6 +21,21 @@ Chosen Question: Does investing in renewable engery lead to the a lowering of en
 ## **Part 2: Data Preparation and Cleaning**
 
 ```{r}
+# Load in necessary csv files
+avg_price_2021_2023 <- read.csv("data/av-energy-price-2021-2023.csv")
+renew_use_2021 <-read.csv("data/renew-use-2021.csv")
+renew_use_2022 <- read.csv("data/renew-use-2022.csv")
+renew_use_2023 <- read.csv("data/renew-use-2023.csv")
+
+# Clean avg_price_2021_2023
+
+
+# Clean renew_use_2021
+
+# Clean renew_use_2022
+
+# Clean renew_use 2023
+
 
 ```
 
