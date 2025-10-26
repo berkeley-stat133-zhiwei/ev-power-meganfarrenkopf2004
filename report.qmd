@@ -12,6 +12,7 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(tibble)
+library(stringr)
 ```
 
 ## **Part 1:** **Defining Research Question**
@@ -22,13 +23,40 @@ Chosen Question: Does investing in renewable engery lead to the a lowering of en
 
 ```{r}
 # Load in necessary csv files
-avg_price_2021_2023 <- read.csv("data/av-energy-price-2021-2023.csv")
+avg_price_2021_2023 <- read.csv("data/av-energy-price-2021-2023.csv", stringsAsFactors = FALSE)
 renew_use_2021 <-read.csv("data/renew-use-2021.csv")
 renew_use_2022 <- read.csv("data/renew-use-2022.csv")
 renew_use_2023 <- read.csv("data/renew-use-2023.csv")
 
 # Clean avg_price_2021_2023
 
+## Remove all unwanted characters and symbols. 
+clean_price <- function(x) {
+    x <- gsub("per MMBtu", "", x, ignore.case = TRUE)
+    x <- gsub("about", "", x, ignore.case = TRUE)
+    x <- gsub("≈","",x)
+    x <- gsub("\\$","",x)
+    x <- gsub("usd","",x, ignore.case = TRUE)
+    x <- gsub("est","",x,ignore.case=TRUE)
+    x <- gsub(" ","",x)
+    x <- gsub("\\.$","",x)
+}
+
+avg_price_2021_2023 <- clean_price(avg_price_2021_2023$Total.energy.average.price..dollars.per.million.Btu...)
+
+avg_price_2021_2023 <-data.frame(avg_price_2021_2023)
+
+## Seperate every states estimated price by year.
+avg_price <- avg_price_2021_2023
+avg_price <- avg_price |>
+    slice(-1:-2) |>
+    mutate(State = str_extract(avg_price_2021_2023, "^[A-Z]{2}"),
+            `2021` = str_sub(avg_price_2021_2023, 4, 8),
+            `2022` = str_sub(avg_price_2021_2023, 10, 14),
+            `2023` = str_sub(avg_price_2021_2023, 16, 20))
+
+avg_price <- avg_price |>
+    select(2:5)
 
 # Clean renew_use_2021
 
