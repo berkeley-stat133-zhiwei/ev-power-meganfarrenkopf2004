@@ -40,6 +40,8 @@ clean_price <- function(x) {
     x <- gsub("est","",x,ignore.case=TRUE)
     x <- gsub(" ","",x)
     x <- gsub("\\.$","",x)
+    x <- gsub("MMBtu","",x)
+    x <- gsub("~","",x)
 }
 
 avg_price_2021_2023 <- clean_price(avg_price_2021_2023$Total.energy.average.price..dollars.per.million.Btu...)
@@ -60,10 +62,15 @@ avg_price <- avg_price |>
 
 # Clean renew_use_2021
 
+renew_use_2021 <- clean_price(renew_use_2021$Renewable_Use_2021)
+
 # Clean renew_use_2022
+
+renew_use_2022 <- clean_price(renew_use_2022$Renewable_Use_2022)
 
 # Clean renew_use 2023
 
+renew_use_2023 <- clean_price(renew_use_2023$Renewable_Use_2023)
 
 ```
 
