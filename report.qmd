@@ -13,6 +13,7 @@ library(ggplot2)
 library(dplyr)
 library(tibble)
 library(stringr)
+library(tidyr)
 ```
 
 ## **Part 1:** **Defining Research Question**
@@ -42,6 +43,8 @@ clean_price <- function(x) {
     x <- gsub("\\.$","",x)
     x <- gsub("MMBtu","",x)
     x <- gsub("~","",x)
+    x <- gsub("kwh","", x, ignore.case = TRUE)
+    x <- gsub("mwh","",x, ignore.case = TRUE)
 }
 
 avg_price_2021_2023 <- clean_price(avg_price_2021_2023$Total.energy.average.price..dollars.per.million.Btu...)
@@ -62,21 +65,40 @@ avg_price <- avg_price |>
 
 # Clean renew_use_2021
 
-renew_use_2021 <- clean_price(renew_use_2021$Renewable_Use_2021)
+Use_2021 <- clean_price(renew_use_2021$Renewable_Use_2021)
+
+renew_use_2021$Renewable_Use_2021 <- Use_2021
 
 # Clean renew_use_2022
 
-renew_use_2022 <- clean_price(renew_use_2022$Renewable_Use_2022)
+Use_2022 <- clean_price(renew_use_2022$Renewable_Use_2022)
+
+renew_use_2022$Renewable_Use_2022 <- Use_2022
 
 # Clean renew_use 2023
 
-renew_use_2023 <- clean_price(renew_use_2023$Renewable_Use_2023)
+Use_2023 <- clean_price(renew_use_2023$Renewable_Use_2023)
+
+renew_use_2023$Renewable_Use_2023 <- Use_2023
 
 ```
 
 ## **Part 3: Joining / Pivoting Datasets for Analysis**
 
 ```{r}
+# Pivoting Renew Use Data Sets
+
+clean_2021 <- pivot_wider(renew_use_2021,
+            names_from = Energy_Source,
+            values_from = Renewable_Use_2021)
+
+clean_2022 <-pivot_wider(renew_use_2022,
+            names_from = Energy_Source,
+            values_from = Renewable_Use_2022)
+
+clean_2023 <- pivot_wider(renew_use_2023,
+            names_from = Energy_Source,
+            values_from = Renewable_Use_2023)
 
 ```
 
