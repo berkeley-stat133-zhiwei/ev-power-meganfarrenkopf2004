@@ -44,7 +44,7 @@ clean_price <- function(x) {
     x <- gsub("MMBtu","",x)
     x <- gsub("~","",x)
     x <- gsub("kwh","", x, ignore.case = TRUE)
-    x <- gsub("mwh","",x, ignore.case = TRUE)
+    x <- gsub("mwh","000",x, ignore.case = TRUE)
 }
 
 avg_price_2021_2023 <- clean_price(avg_price_2021_2023$Total.energy.average.price..dollars.per.million.Btu...)
@@ -100,10 +100,27 @@ clean_2023 <- pivot_wider(renew_use_2023,
             names_from = Energy_Source,
             values_from = Renewable_Use_2023)
 
+# Make relevant columns
+
+clean_2021 <- clean_2021 |>
+    mutate(across(Biomass:`Wind Energy`, as.numeric))|>
+    mutate(total = rowSums(across(Biomass:`Wind Energy`)))
+
+clean_2022 <- clean_2022 |>
+    mutate(total = rowSums(across(Biomass:`Wind Energy`,~ as.numeric(.))))
+
+clean_2023 <- clean_2023 |>
+    mutate(total = rowSums(across(Biomass:`Wind Energy`,~ as.numeric(.))))
+
+avg_price |>
+   mutate(across(`2021`:`2023`, as.double))
+
+
 ```
 
 ## **Part 4: Mapping Visualization**
 
 ```{r}
-
+avg_price |>
+    ggplot()
 ```
