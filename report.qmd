@@ -8,12 +8,14 @@ format: typst
 ## **Part 0: libraries**
 
 ```{r}
+installed.packages("DT")
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(tibble)
 library(stringr)
 library(tidyr)
+library(DT)
 ```
 
 ## **Part 1:** **Defining Research Question**
@@ -104,23 +106,124 @@ clean_2023 <- pivot_wider(renew_use_2023,
 
 clean_2021 <- clean_2021 |>
     mutate(across(Biomass:`Wind Energy`, as.numeric))|>
-    mutate(total = rowSums(across(Biomass:`Wind Energy`)))
+    mutate(total = rowSums(across(Biomass:`Wind Energy`))) |>
+    rename_with(~ paste0(.,"_2021"))
 
 clean_2022 <- clean_2022 |>
-    mutate(total = rowSums(across(Biomass:`Wind Energy`,~ as.numeric(.))))
+    mutate(across(Biomass:`Wind Energy`, as.numeric))|>
+    mutate(total = rowSums(across(Biomass:`Wind Energy`)))|>
+    rename_with(~ paste0(.,"_2022"))
 
 clean_2023 <- clean_2023 |>
-    mutate(total = rowSums(across(Biomass:`Wind Energy`,~ as.numeric(.))))
+    mutate(across(Biomass:`Wind Energy`, as.numeric))|>
+    mutate(total = rowSums(across(Biomass:`Wind Energy`))) |>
+    rename_with(~ paste0(.,"_2023"))
 
-avg_price |>
+avg_price <- avg_price |>
    mutate(across(`2021`:`2023`, as.double))
 
+total_investment <-
+    bind_cols(clean_2021, clean_2022, clean_2023) |>
+    select(c(-15,-8)) |>
+    rename(State = State_2021)
+
+long_total_investment <- total_investment %>%
+  pivot_longer(
+    cols = -State,
+    names_to = c("type", "year"),
+    names_pattern = "(.*)_(\\d{4})",
+    values_to = "values"
+  )
+
+investment_change <- total_investment |>
+    select(c(1,7,13,19)) |>
+    slice(-52) |>
+    mutate(Difference_21_22 = total_2022-total_2021,
+            Difference_22_23 = total_2023-total_2022,
+            Difference_21_23 = total_2023-total_2021) 
+
+top_bottom_investment_change <- bind_rows(
+    slice_max(investment_change, Difference_21_23, n = 4),
+    slice_min(investment_change, Difference_21_23, n = 4)
+    ) 
+
+long_top_bottom <- top_bottom_investment_change |>
+    pivot_longer( 
+        cols = -State,
+    names_to = c("type", "year"),
+    names_pattern = "(.*)_(\\d{4})",
+    values_to = "values"
+    ) 
+
+# Since my question is concerned with the effects of investing in Renewable Energy, I will limit my plots to the experiemental group (States with the most growth in renewable energy: CO, AR, CA, and TX) and the Control (States with the least amount of growth in renewable energy: FL, AL, TN, WA)
+
+top_bottom_avg_price <- avg_price |>
+    slice(c(6, 3, 5, 44, 10, 2, 43, 48)) 
+
+long_top_bottom_avg_price <- top_bottom_avg_price |>
+    pivot_longer(
+        cols = -State,
+        names_to = "year",
+        values_to = "values"
+    )
+
+long_top_bottom_avg_price$State <- 
+    factor(long_top_bottom_avg_price$State, levels = c("CO", "AR","CA","TX", "FL", "AL", "TN", "WA"))
 
 ```
 
 ## **Part 4: Mapping Visualization**
 
 ```{r}
-avg_price |>
-    ggplot()
+
+state_colors <- c(
+    "CO" = "#1b7837",
+    "AR" = "#5aae61",
+    "CA" = "#a6dba0",
+    "TX" = "#d9f0d3",
+    "FL" = "#fddbc7",
+    "AL" = "#f4a582",
+    "TN" = "#d6604d",
+    "WA" = "#b2182b"
+)
+
+top_bottom_investment_change |>
+    datatable(options = list(pageLength = 10), caption = "Interactive Energy Table")
+
+long_top_bottom$State <- 
+    factor(long_top_bottom$State, levels = c("CO", "AR","CA","TX", "FL", "AL", "TN", "WA"))
+
+long_top_bottom |>
+    filter(type =="total") |>
+    ggplot(aes(x= factor(State, levels = c("CO", "AR","CA","TX", "FL", "AL", "TN", "WA")), y=values, fill = State, group = year)) +
+    scale_fill_manual(values = state_colors)+
+    geom_bar(stat = "identity", position = position_dodge(width = 0.9),  
+    width = 0.8                              
+  ) +
+  theme_minimal(base_family = "HandwritingFont") +
+  labs(
+    title = "Energy Use by State and Year",
+    x = "State",
+    y = "Energy Use",
+    fill = "State"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# This bar plot shows the the top 4 states that invested in renewable energy use, and the bottom four states that didn't invest in renewable energy over a three year period. The bars show the states total renewable energy use, allowing the viewer to see if the states had growth or decline in energy use. 
+
+long_top_bottom_avg_price |>
+    ggplot(aes(x = year, y = values, group = State, color = State))+
+    geom_point(size = 2)+
+    geom_line(size = 1) +
+    scale_color_manual(values = state_colors) +
+    theme_minimal(base_family = "HandwritingFont") +
+    labs(
+        title = "Average Price of Energy Change from 2021 to 2023",
+        x = "Year",
+        y = "Average Energy Price",
+        fill = "State"
+    )
+
+# This plot shows the average energy price aver the years. Despite the half the states investing in renewable energy, and the other half not investing, there doesn't appear to be a clear affect on the price of energy. 
+
 ```
