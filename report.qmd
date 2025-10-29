@@ -1,13 +1,11 @@
 ---
 title: "EV Power - Lab 4 Project Report"
-format: typst
+format: pdf
 ---
-
-# Example Solution 1
 
 ## **Part 0: libraries**
 
-```{r}
+```{r, echo = FALSE}
 installed.packages("DT")
 library(tidyverse)
 library(ggplot2)
@@ -24,7 +22,7 @@ Chosen Question: Does investing in renewable engery lead to the a lowering of en
 
 ## **Part 2: Data Preparation and Cleaning**
 
-```{r}
+```{r, echo = FALSE}
 # Load in necessary csv files
 avg_price_2021_2023 <- read.csv("data/av-energy-price-2021-2023.csv", stringsAsFactors = FALSE)
 renew_use_2021 <-read.csv("data/renew-use-2021.csv")
@@ -87,7 +85,7 @@ renew_use_2023$Renewable_Use_2023 <- Use_2023
 
 ## **Part 3: Joining / Pivoting Datasets for Analysis**
 
-```{r}
+```{r, echo = FALSE}
 # Pivoting Renew Use Data Sets
 
 clean_2021 <- pivot_wider(renew_use_2021,
@@ -172,9 +170,29 @@ long_top_bottom_avg_price$State <-
 
 ```
 
+ Since my question is concerned with the effects of investing in Renewable Energy, I will limit my plots to the experiemental group (States with the most growth in renewable energy: CO, AR, CA, and TX) and the Control (States with the least amount of growth in renewable energy: FL, AL, TN, WA)
+
+# Data and Methods
+
+ ```{r, echo = FALSE}
+
+ top_bottom_investment_change |>
+    datatable(options = list(pageLength = 10), caption = "Interactive Energy Table")
+
+long_top_bottom |>
+    datatable(options = list(pageLength = 10), caption = "Interactive Long Energy Table")
+
+top_bottom_avg_price |>
+    datatable(options = list(pageLength = 10), caption = "Interactive Average Energy Price Table")
+
+long_top_bottom_avg_price |>
+    datatable(options = list(pageLength = 10), caption = "Interactive Long Average Energy Price Table")
+
+ ```
+
 ## **Part 4: Mapping Visualization**
 
-```{r}
+```{r, warning = FALSE, echo = FALSE}
 
 state_colors <- c(
     "CO" = "#1b7837",
@@ -187,8 +205,7 @@ state_colors <- c(
     "WA" = "#b2182b"
 )
 
-top_bottom_investment_change |>
-    datatable(options = list(pageLength = 10), caption = "Interactive Energy Table")
+
 
 long_top_bottom$State <- 
     factor(long_top_bottom$State, levels = c("CO", "AR","CA","TX", "FL", "AL", "TN", "WA"))
@@ -209,7 +226,11 @@ long_top_bottom |>
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# This bar plot shows the the top 4 states that invested in renewable energy use, and the bottom four states that didn't invest in renewable energy over a three year period. The bars show the states total renewable energy use, allowing the viewer to see if the states had growth or decline in energy use. 
+```
+
+This bar plot shows the the top 4 states that invested in renewable energy use, and the bottom four states that didn't invest in renewable energy over a three year period. The bars show the states total renewable energy use, allowing the viewer to see if the states had growth or decline in energy use. 
+
+```{r, warning = FALSE, echo = FALSE}
 
 long_top_bottom_avg_price |>
     ggplot(aes(x = year, y = values, group = State, color = State))+
@@ -221,9 +242,17 @@ long_top_bottom_avg_price |>
         title = "Average Price of Energy Change from 2021 to 2023",
         x = "Year",
         y = "Average Energy Price",
-        fill = "State"
     )
 
-# This plot shows the average energy price aver the years. Despite the half the states investing in renewable energy, and the other half not investing, there doesn't appear to be a clear affect on the price of energy. 
-
 ```
+
+ This plot shows the average energy price aver the years. Despite the half the states investing in renewable energy, and the other half not investing, there doesn't appear to be a clear affect on the price of energy. 
+
+ Therefore it is inconclusise weither investing in renewable energy leads to a lowering in energy costs. 
+
+
+ Future questions that can be asked include breaking the question down to specific renewable energy sources (Biomass, Geothermal, Hydro, Solar, and Wind) to see if specific types of energy have more of an effect on cost. 
+ 
+ Another question would be to increade the time span beyond three years to see if there is more of a patter. 
+ 
+ Additionally, there is an odd increase in energy cost in 2022. With additional data sources, it would be interesting to understand what lead to this increase across the country. 
